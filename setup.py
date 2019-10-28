@@ -28,7 +28,7 @@ def setup(arg = ''):
 		os.system('sudo pip3 install python-telegram-bot --upgrade') # need to use some experiement feature, e.g. message filtering
 			
 	# kill the old running bot if any. If you need two same bot running in one machine, use mannual command instead
-	os.system("ps aux | grep python | grep channel_subscription_v2 | awk '{print $2}' | xargs kill -9")
+	os.system("ps aux | grep ython | grep channel_subscription_v2 | awk '{print $2}' | xargs kill -9")
 
 	if arg == 'debug':
 		os.system(RUN_COMMAND[6:-2])
