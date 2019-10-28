@@ -10,7 +10,7 @@ def setup(arg = ''):
 	CREDENTIALS = {}
 	try:
 		with open('CREDENTIALS') as f:
-			CREDENTIALS = json.load(f, Loader=yaml.FullLoader)
+			CREDENTIALS = json.load(f)
 	except Exception as e:
 		print(e)
 
