@@ -38,7 +38,7 @@ def appendMessageLog(message):
 
 try:
     with open('hashes') as f:
-        hashes = set(yaml.load(f))
+        hashes = set(yaml.load(f, Loader=yaml.FullLoader))
 except:
     hashes = set([])
 
@@ -186,10 +186,15 @@ def loopImp():
                     for key in DB[chat_id]:
                         if key in str(author) or key in str(result):
                             updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                            print('hash:')
+                            print(hash(text.text))
+                            print(hashes)
                             time.sleep(SLEEP)
                             break
                 hashes.add(hash(text.text))
                 saveHashes()
+                print('updated hashes')
+                print(hashes)
 
 def loop():
     try:
