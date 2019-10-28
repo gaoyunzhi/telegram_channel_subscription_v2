@@ -1,0 +1,5 @@
+pool:
+- twitter_subscriptions
+- WeChatEssence
+- pincongessence
+subscription: {}

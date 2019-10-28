@@ -10,7 +10,7 @@ def setup(arg = ''):
 	CREDENTIALS = {}
 	try:
 		with open('CREDENTIALS') as f:
-			CREDENTIALS = yaml.load(f)
+			CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
 	except Exception as e:
 		print(e)
 

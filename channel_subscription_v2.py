@@ -22,33 +22,31 @@ keys - /show_keys: show subscription keywords
 edit - /keys keywords: give a new set of keywords, in json format
 ''')
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 with open('CREDENTIALS') as f:
-    CREDENTIALS = yaml.load(f)
+    CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
 
 export_to_telegraph.token = CREDENTIALS.get('telegraph')
 debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
 LONG_TEXT_LIMIT = 300
 INTERVAL = 30 # debug, change to 3600
+SLEEP = 5
 
 def appendMessageLog(message):
     with open('message_log.txt', 'a') as f:
         f.write(message) 
 
-hashs = set()
+hashes = set()
 
 try:
     with open('DB') as f:
-        DB = yaml.load(f)
+        DB = yaml.load(f, Loader=yaml.FullLoader)
 except:
     DB = {'pool': []}
 
 def saveDB():
     with open('DB', 'w') as f:
-        f.write(yaml.dumps(DB, sort_keys=True, indent=2))
+        f.write(yaml.dump(DB, sort_keys=True, indent=2))
 
 def addKey(chat_id, key):
     DB[chat_id] = DB.get(chat_id, [])
@@ -63,7 +61,7 @@ def splitCommand(text):
     return command.lower(), text[text.find(command) + len(command):].strip()
 
 def listPool(msg):
-    items = ['{}: [t.me/{}]({})'.format(index, content, content) \
+    items = ['{}: [{}](t.me/{})'.format(index, content, content) \
         for index, content in enumerate(DB['pool'])]
     msg.reply_text('\n\n'.join(items), quote=False, disable_web_page_preview=True, 
         parse_mode='Markdown')
@@ -72,14 +70,16 @@ def add(msg, content):
     pieces = [x.strip() for x in content.split('/') if x.strip()]
     if len(pieces) == 0:
         return msg.reply_text('FAIL. can not find channel: ' + content, quote=False)
-    if name.starwith('@'):
+    name = pieces[-1]
+    if name.startswith('@'):
         name = name[1:]
     if not name:
         return msg.reply_text('FAIL. can not find channel: ' + content, quote=False)
     if name in DB['pool']:
         return msg.reply_text('channel already in pool: ' + content, quote=False)
     DB['pool'].append(name)
-    addKey(msg.chat_id, name)
+    if chat_id < 0:
+        addKey(msg.chat_id, name) 
     msg.reply_text('success', quote=False)
 
 def remove(msg, content):
@@ -96,7 +96,7 @@ def show(msg):
 
 def key(msg, content):
     try:
-        DB[chat_id] = yaml.load(content)
+        DB[chat_id] = yaml.load(content, Loader=yaml.FullLoader)
         msg.reply_text('success', quote=False)
     except Exception as e:
         msg.reply_text(str(e), quote=False)
@@ -135,7 +135,39 @@ dp.add_handler(MessageHandler(Filters.command, manage))
 dp.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
 
 def loopImp():
-    pass 
+    for item in DB['pool']:
+        url = 'https://telete.in/s/' + item
+        headers = {'Host':'telete.in',
+            'Connection':'keep-alive',
+            'Cache-Control':'max-age=0',
+            'Upgrade-Insecure-Requests':'1',
+            'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36',
+            'Sec-Fetch-User':'?1',
+            'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'Sec-Fetch-Site':'none',
+            'Sec-Fetch-Mode':'navigate',
+            'Accept-Encoding':'gzip, deflate, br',
+            'Accept-Language':'en-US,en;q=0.9,zh;q=0.8,zh-CN;q=0.7'}
+        r = requests.get(url, headers=headers)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
+            text = msg.find('div', class_='tgme_widget_message_text')
+            author = msg.find('div', class_='tgme_widget_message_author') 
+            result = ''
+            for item in text:
+                result += str(item)
+            if hash(result) not in hashes:
+                for chat_id in DB['subscription']:
+                    if not isinstance(chat_id, int):
+                        continue 
+                    for key in DB[chat_id]:
+                        if key in str(author) or key in str(result):
+                            updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
+                hashes.add(hash(result))
+            time.sleep(SLEEP)
+        with open('tmp.html', 'w') as f:
+            f.write(str(soup))
 
 def loop():
     try:
