@@ -36,7 +36,15 @@ def appendMessageLog(message):
     with open('message_log.txt', 'a') as f:
         f.write(message) 
 
-hashes = set()
+try:
+    with open('hashes') as f:
+        hashes = set(yaml.load(f))
+    except:
+        hashes = set([])
+
+def saveHashes():
+    with open('hashes', 'w') as f:
+        f.write(yaml.dump(hashes, indent=2))
 
 try:
     with open('DB') as f:
@@ -179,6 +187,7 @@ def loopImp():
                             updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
                             break
                 hashes.add(hash(text.text))
+                saveHashes()
             time.sleep(SLEEP)
         with open('tmp.html', 'w') as f:
             f.write(str(soup))
