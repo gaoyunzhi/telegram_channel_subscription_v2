@@ -1,10 +1,12 @@
-pool:
-- WeChatEssence
-- twitter_subscriptions
-- pincongessence
 -1001197970228:
 - "\u4E66"
 - BBC
 - NYT
 - times
 - dw.com
+- bbc
+- nyt
+pool:
+- WeChatEssence
+- twitter_subscriptions
+- pincongessence
