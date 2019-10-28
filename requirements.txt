@@ -1,4 +1,4 @@
 python-telegram-bot
 export_to_telegraph>=0.0.8
 bs4
-yaml
+pyyaml
