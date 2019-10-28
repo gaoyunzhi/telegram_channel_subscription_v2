@@ -39,8 +39,8 @@ def appendMessageLog(message):
 try:
     with open('hashes') as f:
         hashes = set(yaml.load(f))
-    except:
-        hashes = set([])
+except:
+    hashes = set([])
 
 def saveHashes():
     with open('hashes', 'w') as f:
