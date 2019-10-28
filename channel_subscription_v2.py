@@ -177,6 +177,7 @@ def loopImp():
                     for key in DB[chat_id]:
                         if key in str(author) or key in str(result):
                             updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                            break
                 hashes.add(hash(text.text))
             time.sleep(SLEEP)
         with open('tmp.html', 'w') as f:
