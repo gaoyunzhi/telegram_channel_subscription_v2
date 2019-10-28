@@ -157,12 +157,18 @@ def loopImp():
             result = ''
             for item in text:
                 if item.name in set(['br']):
+                    result += '\n'
                     continue
                 if item.name == 'a':
                     telegraph_url = export_to_telegraph.export(item['href'])
                     if telegraph_url:
                         item['href'] = telegraph_url
+                        if 'http' in item.text:
+                            item.contents[0].replaceWith(telegraph_url)
+                if str(item).startswith('原文链接') and 'telegra' in result:
+                    break
                 result += str(item)
+            print(result)
             if hash(text.text) not in hashes:
                 appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
                 for chat_id in DB:
