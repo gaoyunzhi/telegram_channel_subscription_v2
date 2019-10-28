@@ -86,7 +86,7 @@ def add(msg, content):
     if name in DB['pool']:
         return msg.reply_text('channel already in pool: ' + content, quote=False)
     DB['pool'].append(name)
-    if chat_id < 0:
+    if msg.chat_id < 0:
         addKey(msg.chat_id, name) 
     msg.reply_text('success', quote=False)
 
@@ -163,7 +163,10 @@ def loopImp():
         soup = BeautifulSoup(r.text, 'html.parser')
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
-            author = msg.find('div', class_='tgme_widget_message_author') 
+            if hash(text.text) in hashes:
+                continue
+            hashes.add(hash(text.text))
+            author = msg.find('div', class_='tgme_widget_message_author')
             result = ''
             for item in text:
                 if item.name in set(['br']):
@@ -186,15 +189,10 @@ def loopImp():
                     for key in DB[chat_id]:
                         if key in str(author) or key in str(result):
                             updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
-                            print('hash:')
-                            print(hash(text.text))
-                            print(hashes)
                             time.sleep(SLEEP)
                             break
                 hashes.add(hash(text.text))
                 saveHashes()
-                print('updated hashes')
-                print(hashes)
 
 def loop():
     try:
