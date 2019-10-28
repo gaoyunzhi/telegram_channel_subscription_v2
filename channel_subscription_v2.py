@@ -144,6 +144,8 @@ dp.add_handler(MessageHandler(Filters.command, manage))
 dp.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
 
 def loopImp():
+    global hashes
+    global DB
     for item in DB['pool']:
         url = 'https://telete.in/s/' + item
         headers = {'Host':'telete.in',
@@ -176,7 +178,6 @@ def loopImp():
                 if str(item).startswith('原文链接') and 'telegra' in result:
                     break
                 result += str(item)
-            print(result)
             if hash(text.text) not in hashes:
                 appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
                 for chat_id in DB:
@@ -185,12 +186,10 @@ def loopImp():
                     for key in DB[chat_id]:
                         if key in str(author) or key in str(result):
                             updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                            time.sleep(SLEEP)
                             break
                 hashes.add(hash(text.text))
                 saveHashes()
-            time.sleep(SLEEP)
-        with open('tmp.html', 'w') as f:
-            f.write(str(soup))
 
 def loop():
     try:
