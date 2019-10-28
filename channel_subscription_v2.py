@@ -104,6 +104,7 @@ def key(msg, content):
 
 def manage(update, context):
     try:
+        print('here manage')
         msg = update.effective_message
         if not msg:
             return
@@ -162,7 +163,7 @@ def loopImp():
                         item['href'] = telegraph_url
                 result += str(item)
             if hash(text.text) not in hashes:
-                for chat_id in DB['subscription']:
+                for chat_id in DB:
                     if not isinstance(chat_id, int):
                         continue 
                     for key in DB[chat_id]:
@@ -176,6 +177,7 @@ def loopImp():
 
 def loop():
     try:
+        print('hereinloop')
         loopImp()
     except Exception as e:
         print(e)
@@ -183,6 +185,8 @@ def loop():
     threading.Timer(INTERVAL, loop).start()
 
 threading.Timer(1, loop).start()
+print(threading.active_count())
+print('here')
 
 updater.start_polling()
 updater.idle()
