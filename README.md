@@ -25,8 +25,8 @@ Subscribe messages from public channels.
 
 add - /add channel_link add channel to subscription pool. Channel must have public name. Automatically subscribe this channel if messge is send in a group or channel.
 list - /list: list all channels.
-keys - /show_keys: show subscription keywords
-edit - /keys keywords: give a new set of keywords, in json format
+show_keys - /show_keys: show subscription keywords
+keys - /keys keywords: give a new set of keywords, in json format
 remove - /remove index: remove channel in the pool. Bot admin only.
 
 Feedback / feature requests are welcomed at @dushufenxiang_chat.
