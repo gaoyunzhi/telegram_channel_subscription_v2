@@ -30,7 +30,7 @@ debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
 LONG_TEXT_LIMIT = 300
 INTERVAL = 30 # debug, change to 3600
-SLEEP = 5
+SLEEP = 10
 
 def appendMessageLog(message):
     with open('message_log.txt', 'a') as f:
@@ -96,7 +96,8 @@ def show(msg):
 
 def key(msg, content):
     try:
-        DB[chat_id] = yaml.load(content, Loader=yaml.FullLoader)
+        DB[msg.chat_id] = yaml.load(content, Loader=yaml.FullLoader)
+        saveDB()
         msg.reply_text('success', quote=False)
     except Exception as e:
         msg.reply_text(str(e), quote=False)
@@ -155,8 +156,12 @@ def loopImp():
             author = msg.find('div', class_='tgme_widget_message_author') 
             result = ''
             for item in text:
+                if item.name == 'a':
+                    telegraph_url = export_to_telegraph.export(item['href'])
+                    if telegraph_url:
+                        item['href'] = telegraph_url
                 result += str(item)
-            if hash(result) not in hashes:
+            if hash(text.text) not in hashes:
                 for chat_id in DB['subscription']:
                     if not isinstance(chat_id, int):
                         continue 
@@ -164,14 +169,13 @@ def loopImp():
                         if key in str(author) or key in str(result):
                             updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
                 appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
-                hashes.add(hash(result))
+                hashes.add(hash(text.text))
             time.sleep(SLEEP)
         with open('tmp.html', 'w') as f:
             f.write(str(soup))
 
 def loop():
     try:
-        print('hereinloop')
         loopImp()
     except Exception as e:
         print(e)
