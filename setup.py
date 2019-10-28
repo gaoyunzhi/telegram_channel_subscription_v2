@@ -1,6 +1,6 @@
 import os
 import sys
-import yaml
+import json
 
 REQUIRED_KEYS = set(['bot_token'])
 
@@ -10,7 +10,7 @@ def setup(arg = ''):
 	CREDENTIALS = {}
 	try:
 		with open('CREDENTIALS') as f:
-			CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
+			CREDENTIALS = json.load(f, Loader=yaml.FullLoader)
 	except Exception as e:
 		print(e)
 
