@@ -92,7 +92,7 @@ def remove(msg, content):
         msg.reply_text(str(e), quote=False)
 
 def show(msg):
-    msg.reply_text('Subscription Keys' + str(DB.get(msg.chat_id)), quote=False)
+    msg.reply_text('Subscription Keys: ' + str(DB.get(msg.chat_id)), quote=False)
 
 def key(msg, content):
     try:
@@ -171,13 +171,14 @@ def loopImp():
 
 def loop():
     try:
+        print('hereinloop')
         loopImp()
     except Exception as e:
         print(e)
         tb.print_exc()
     threading.Timer(INTERVAL, loop).start()
 
-loop()
+threading.Timer(1, loop).start()
 
 updater.start_polling()
 updater.idle()
