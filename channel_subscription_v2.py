@@ -28,9 +28,7 @@ with open('CREDENTIALS') as f:
 export_to_telegraph.token = CREDENTIALS.get('telegraph')
 debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
-LONG_TEXT_LIMIT = 300
-INTERVAL = 30 # debug, change to 3600
-SLEEP = 10
+INTERVAL = 3600
 
 def appendMessageLog(message):
     with open('message_log.txt', 'a') as f:
@@ -143,56 +141,70 @@ dp = updater.dispatcher
 dp.add_handler(MessageHandler(Filters.command, manage))
 dp.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
 
+def getSoup(url):
+    url = 'https://telete.in/s/' + item
+    headers = {'Host':'telete.in',
+        'Connection':'keep-alive',
+        'Cache-Control':'max-age=0',
+        'Upgrade-Insecure-Requests':'1',
+        'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36',
+        'Sec-Fetch-User':'?1',
+        'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+        'Sec-Fetch-Site':'none',
+        'Sec-Fetch-Mode':'navigate',
+        'Accept-Encoding':'gzip, deflate, br',
+        'Accept-Language':'en-US,en;q=0.9,zh;q=0.8,zh-CN;q=0.7'}
+    r = requests.get(url, headers=headers)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    with open('tmp1.html', 'w') as f:
+        f.write(str(soup))
+    return soup
+
+def getParsedText(text):
+    result = ''
+    for item in text:
+        if item.name in set(['br']):
+            result += '\n'
+            continue
+        if item.name == 'a':
+            telegraph_url = export_to_telegraph.export(item['href'])
+            if telegraph_url:
+                item['href'] = telegraph_url
+                if 'http' in item.text:
+                    item.contents[0].replaceWith(telegraph_url)
+        if str(item).startswith('原文链接') and 'telegra' in result:
+            return result
+        result += str(item)
+    return result
+
+def keyMatch(chat_id, author, result):
+    if not isinstance(chat_id, int):
+        continue 
+    for key in DB[chat_id]:
+        if key in str(author) or key in str(result):
+            return True
+    return False
+
 def loopImp():
     global hashes
     global DB
     for item in DB['pool']:
-        url = 'https://telete.in/s/' + item
-        headers = {'Host':'telete.in',
-            'Connection':'keep-alive',
-            'Cache-Control':'max-age=0',
-            'Upgrade-Insecure-Requests':'1',
-            'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36',
-            'Sec-Fetch-User':'?1',
-            'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-            'Sec-Fetch-Site':'none',
-            'Sec-Fetch-Mode':'navigate',
-            'Accept-Encoding':'gzip, deflate, br',
-            'Accept-Language':'en-US,en;q=0.9,zh;q=0.8,zh-CN;q=0.7'}
-        r = requests.get(url, headers=headers)
-        soup = BeautifulSoup(r.text, 'html.parser')
+        getSoup('https://telete.in/s/' + item)
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
+            print('here1')
             text = msg.find('div', class_='tgme_widget_message_text')
+            print(text.text)
             if hash(text.text) in hashes:
                 continue
+            print('here2')
             hashes.add(hash(text.text))
             author = msg.find('div', class_='tgme_widget_message_author')
-            result = ''
-            for item in text:
-                if item.name in set(['br']):
-                    result += '\n'
-                    continue
-                if item.name == 'a':
-                    telegraph_url = export_to_telegraph.export(item['href'])
-                    if telegraph_url:
-                        item['href'] = telegraph_url
-                        if 'http' in item.text:
-                            item.contents[0].replaceWith(telegraph_url)
-                if str(item).startswith('原文链接') and 'telegra' in result:
-                    break
-                result += str(item)
-            if hash(text.text) not in hashes:
-                appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
-                for chat_id in DB:
-                    if not isinstance(chat_id, int):
-                        continue 
-                    for key in DB[chat_id]:
-                        if key in str(author) or key in str(result):
-                            updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
-                            time.sleep(SLEEP)
-                            break
-                hashes.add(hash(text.text))
-                saveHashes()
+            result = getParsedText(text)
+            appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
+            print(result)
+            for chat_id in DB:
+                if keyMatch(chat_id, author, result):
+                    updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
 
 def loop():
     try:
@@ -200,6 +212,7 @@ def loop():
     except Exception as e:
         print(e)
         tb.print_exc()
+        updater.bot.send_message(chat_id=debug_group, text=str(e))
     threading.Timer(INTERVAL, loop).start()
 
 threading.Timer(1, loop).start()
