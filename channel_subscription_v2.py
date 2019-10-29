@@ -142,7 +142,6 @@ dp.add_handler(MessageHandler(Filters.command, manage))
 dp.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
 
 def getSoup(url):
-    url = 'https://telete.in/s/' + item
     headers = {'Host':'telete.in',
         'Connection':'keep-alive',
         'Cache-Control':'max-age=0',
@@ -179,7 +178,7 @@ def getParsedText(text):
 
 def keyMatch(chat_id, author, result):
     if not isinstance(chat_id, int):
-        continue 
+        return False
     for key in DB[chat_id]:
         if key in str(author) or key in str(result):
             return True
@@ -189,21 +188,18 @@ def loopImp():
     global hashes
     global DB
     for item in DB['pool']:
-        getSoup('https://telete.in/s/' + item)
+        soup = getSoup('https://telete.in/s/' + item)
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
-            print('here1')
             text = msg.find('div', class_='tgme_widget_message_text')
-            print(text.text)
             if hash(text.text) in hashes:
                 continue
-            print('here2')
             hashes.add(hash(text.text))
+            saveHashes()
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
             appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
-            print(result)
             for chat_id in DB:
-                if keyMatch(chat_id, author, result):
+                if keyMatch(chat_id, str(author), result):
                     updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
 
 def loop():
@@ -212,7 +208,10 @@ def loop():
     except Exception as e:
         print(e)
         tb.print_exc()
-        updater.bot.send_message(chat_id=debug_group, text=str(e))
+        try:
+            updater.bot.send_message(chat_id=debug_group, text=str(e))
+        except:
+            pass
     threading.Timer(INTERVAL, loop).start()
 
 threading.Timer(1, loop).start()

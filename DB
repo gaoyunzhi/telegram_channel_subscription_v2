@@ -6,5 +6,8 @@
 - dw.com
 - bbc
 - nyt
-pool:
+pool
+- pincongessence
+- WeChatEssence
 - twitter_subscriptions
+
