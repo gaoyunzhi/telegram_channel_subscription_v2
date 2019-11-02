@@ -13,7 +13,7 @@ import threading
 import export_to_telegraph
 from bs4 import BeautifulSoup
 
-os.environ['PYTHONHASHSEED']=0
+os.environ['PYTHONHASHSEED']='0'
 
 START_MESSAGE = ('''
 Subscribe messages from public channels. 
