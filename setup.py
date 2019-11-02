@@ -5,7 +5,7 @@ import json
 REQUIRED_KEYS = set(['bot_token'])
 
 def setup(arg = ''):
-	RUN_COMMAND = 'nohup python3 -u channel_subscription_v2.py &'
+	RUN_COMMAND = 'nohup PYTHONHASHSEED=0 python3 -u channel_subscription_v2.py &'
 
 	CREDENTIALS = {}
 	try:
@@ -18,8 +18,6 @@ def setup(arg = ''):
 		if key not in CREDENTIALS:
 			print('ERROR: please fill the CREDENTIALS file in json format, required keys : ' + ', '.join(sorted(REQUIRED_KEYS)))
 			return
-
-	os.system('export PYTHONHASHSEED=0')
 
 	if arg != 'reload' and arg != 'debug':
 		os.system('curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py')
