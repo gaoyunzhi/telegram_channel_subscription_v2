@@ -179,7 +179,7 @@ def getParsedText(text):
     return result
 
 def keyMatch(chat_id, author, result):
-    if not isinstance(chat_id, int):
+    if (not isinstance(chat_id, int)) or (not DB[chat_id]):
         return False
     for key in DB[chat_id]:
         if key in str(author) or key in str(result):
@@ -193,16 +193,18 @@ def loopImp():
         soup = getSoup('https://telete.in/s/' + item)
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
-            if hash(text.text) in hashes:
+            hash_value = hash(text.text)
+            if hash_value in hashes:
                 continue
-            hashes.add(hash(text.text))
-            saveHashes()
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
             appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
             for chat_id in DB:
                 if keyMatch(chat_id, str(author), result):
                     updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+            hashes.add(hash_value)
+            saveHashes()
+
 
 def loop():
     try:
