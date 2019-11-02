@@ -29,6 +29,7 @@ export_to_telegraph.token = CREDENTIALS.get('telegraph')
 debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
 INTERVAL = 3600
+channel_reply = {}
 
 def appendMessageLog(message):
     with open('message_log.txt', 'a') as f:
@@ -99,14 +100,28 @@ def remove(msg, content):
     except Exception as e:
         msg.reply_text(str(e), quote=False)
 
+def getKeysText(msg):
+    return 'Subscription Keys: ' + str(DB.get(msg.chat_id))
+
+def deleteOutdatedMsg(msg, r):
+    global channel_reply
+    if msg.chat_id > 0:
+        return
+    msg.delete()
+    if channel_reply.get(msg.chat_id):
+       channel_reply[msg.chat_id].delete()
+    channel_reply[msg.chat_id] = r
+
 def show(msg):
-    msg.reply_text('Subscription Keys: ' + str(DB.get(msg.chat_id)), quote=False)
+    r = msg.reply_text(getKeysText(msg), quote=False)
+    deleteOutdatedMsg(msg, r)
 
 def key(msg, content):
     try:
         DB[msg.chat_id] = yaml.load(content, Loader=yaml.FullLoader)
         saveDB()
-        msg.reply_text('success', quote=False)
+        r = msg.reply_text('success ' + getKeysText(msg), quote=False)
+        deleteOutdatedMsg(msg, r)
     except Exception as e:
         msg.reply_text(str(e), quote=False)
 
