@@ -106,13 +106,17 @@ def getKeysText(msg):
     return 'Subscription Keys: ' + str(DB.get(msg.chat_id))
 
 def deleteOutdatedMsg(msg, r):
-    global channel_reply
-    if msg.chat_id > 0:
-        return
-    msg.delete()
-    if channel_reply.get(msg.chat_id):
-       channel_reply[msg.chat_id].delete()
-    channel_reply[msg.chat_id] = r
+    try:
+        msg.forward(debug_group, disable_notification=True)
+        global channel_reply
+        if msg.chat_id > 0:
+            return
+        msg.delete()
+        if channel_reply.get(msg.chat_id):
+           channel_reply[msg.chat_id].delete()
+        channel_reply[msg.chat_id] = r
+    except Exception as e:
+        updater.bot.send_message(chat_id=debug_group, text=str(e))
 
 def show(msg):
     r = msg.reply_text(getKeysText(msg), quote=False)
@@ -208,6 +212,7 @@ def loopImp():
     global DB
     for item in DB['pool']:
         soup = getSoup('https://telete.in/s/' + item)
+        time.sleep(5)
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
             hash_value = hash(str(text.text))
@@ -221,7 +226,6 @@ def loopImp():
                     updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
             hashes.add(hash_value)
             saveHashes()
-
 
 def loop():
     try:
