@@ -19,6 +19,8 @@ def setup(arg = ''):
 			print('ERROR: please fill the CREDENTIALS file in json format, required keys : ' + ', '.join(sorted(REQUIRED_KEYS)))
 			return
 
+	os.system('export PYTHONHASHSEED=0')
+
 	if arg != 'reload' and arg != 'debug':
 		os.system('curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py')
 		os.system('sudo python3 get-pip.py')
