@@ -214,6 +214,9 @@ def loopImp():
         time.sleep(5)
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
+            if (not text) or (not text.text):
+                updater.bot.send_message(chat_id=debug_group, text='no text: ' + str(text))
+                continue
             hash_value = hashlib.sha224(str(text.text).encode('utf-8')).hexdigest()
             if hash_value in hashes:
                 continue
