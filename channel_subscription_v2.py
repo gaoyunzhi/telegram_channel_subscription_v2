@@ -14,6 +14,8 @@ import export_to_telegraph
 from bs4 import BeautifulSoup
 
 os.environ['PYTHONHASHSEED']='0'
+print('PYTHONHASHSEED')
+os.system('echo $PYTHONHASHSEED')
 
 START_MESSAGE = ('''
 Subscribe messages from public channels. 
@@ -216,6 +218,9 @@ def loopImp():
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
             hash_value = hash(str(text.text))
+            if '内地读书的新疆学生的选' in text.text:
+                print(hash_value)
+                print(hash_value in hashes)
             if hash_value in hashes:
                 continue
             author = msg.find('div', class_='tgme_widget_message_author')
