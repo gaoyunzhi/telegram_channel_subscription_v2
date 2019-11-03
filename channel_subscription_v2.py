@@ -225,7 +225,10 @@ def loopImp():
             appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
             for chat_id in DB:
                 if keyMatch(chat_id, str(author), result):
-                    updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                    try:
+                        updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                    except:
+                        print(result)
             hashes.add(hash_value)
             saveHashes()
 
