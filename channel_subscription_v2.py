@@ -187,10 +187,15 @@ def getParsedText(text):
         if item.name in set(['br']):
             result += '\n'
             continue
+        if item.name == 'i':
+            if item.text:
+                result += '<i>' + item.text + '</i>'
+            continue
         if item.name == 'a':
             telegraph_url = export_to_telegraph.export(item['href'])
             if telegraph_url:
                 item['href'] = telegraph_url
+                del item['rel']
                 if 'http' in item.text:
                     item.contents[0].replaceWith(telegraph_url)
         if str(item).startswith('原文链接') and 'telegra' in result:
@@ -227,7 +232,8 @@ def loopImp():
                 if keyMatch(chat_id, str(author), result):
                     try:
                         updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
-                    except:
+                    except Exception as e:
+                        print(e)                        
                         print(result)
             hashes.add(hash_value)
             saveHashes()
