@@ -146,7 +146,6 @@ def manage(update, context):
             return show(msg)
         if 'key' in command:
             return key(msg, content)
-        msg.reply_text(START_MESSAGE, quote=False)
     except Exception as e:
         print(e)
         tb.print_exc()
