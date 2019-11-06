@@ -76,7 +76,28 @@ def listPool(msg):
     msg.reply_text('\n\n'.join(items), quote=False, disable_web_page_preview=True, 
         parse_mode='Markdown')
 
+def getDisplayUser(user):
+    result = ''
+    if user.first_name:
+        result += user.first_name
+    if user.last_name:
+        result += ' ' + user.last_name
+    if user.username:
+        result += ' (' + user.username + ')'
+    return '[' + result + '](tg://user?id=' + str(user.id) + ')'
+    
 def add(msg, content):
+    if not msg.from_user:
+        return
+    if msg.from_user.id not in CREDENTIALS.get('admins', []):
+        updater.bot.send_message(chat_id=debug_group, text='suggestion: ' + content)
+        msg.reply_text('Only admin can add, your suggestion is recorded.', quote=False)
+        updater.bot.send_message(
+            chat_id=debug_group, 
+            text ='suggestion from ' + getDisplayUser(msg.from_user)
+            parse_mode='Markdown',
+            disable_web_page_preview=True) 
+        return
     pieces = [x.strip() for x in content.split('/') if x.strip()]
     if len(pieces) == 0:
         return msg.reply_text('FAIL. can not find channel: ' + content, quote=False)
@@ -93,7 +114,9 @@ def add(msg, content):
     msg.reply_text('success', quote=False)
 
 def remove(msg, content):
-    if msg.from_user_id not in CREDENTIALS.get('admins', []):
+    if not msg.from_user:
+        return
+    if msg.from_user.id not in CREDENTIALS.get('admins', []):
         return msg.reply_text('FAIL. Only admin can remove subscription', quote=False)
     try:
         del DB['pool'][int(content)]
