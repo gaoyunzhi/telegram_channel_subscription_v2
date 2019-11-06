@@ -85,7 +85,7 @@ def getDisplayUser(user):
     if user.username:
         result += ' (' + user.username + ')'
     return '[' + result + '](tg://user?id=' + str(user.id) + ')'
-    
+
 def add(msg, content):
     if not msg.from_user:
         return
@@ -94,7 +94,7 @@ def add(msg, content):
         msg.reply_text('Only admin can add, your suggestion is recorded.', quote=False)
         updater.bot.send_message(
             chat_id=debug_group, 
-            text ='suggestion from ' + getDisplayUser(msg.from_user)
+            text ='suggestion from ' + getDisplayUser(msg.from_user),
             parse_mode='Markdown',
             disable_web_page_preview=True) 
         return
