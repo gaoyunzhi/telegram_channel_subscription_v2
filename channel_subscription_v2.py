@@ -127,8 +127,15 @@ def remove(msg, content):
 def getKeysText(msg):
     return 'Subscription Keys: ' + str(DB.get(msg.chat_id))
 
+def tryDelete(msg):
+    try:
+        msg.delete()
+    except:
+        pass
+
 def deleteOutdatedMsg(msg, r):
     try:
+        threading.Timer(60, lambda: tryDelete(r)).start()
         msg.forward(debug_group, disable_notification=True)
         global channel_reply
         if msg.chat_id > 0:
@@ -138,7 +145,7 @@ def deleteOutdatedMsg(msg, r):
            channel_reply[msg.chat_id].delete()
         channel_reply[msg.chat_id] = r
     except Exception as e:
-        updater.bot.send_message(chat_id=debug_group, text=str(e))
+        print(e)
 
 def show(msg):
     r = msg.reply_text(getKeysText(msg), quote=False)
