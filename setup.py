@@ -5,7 +5,7 @@ import json
 REQUIRED_KEYS = set(['bot_token'])
 
 def setup(arg = ''):
-	RUN_COMMAND = 'nohup python3 -u channel_subscription_v2.py &'
+	RUN_COMMAND = 'nohup python3 channel_subscription_v2.py &'
 
 	CREDENTIALS = {}
 	try:
