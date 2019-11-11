@@ -42,9 +42,9 @@ try:
 except:
     hashes = set([])
 
-def saveHashes():
-    with open('hashes', 'w') as f:
-        f.write(yaml.dump(hashes, indent=2))
+def saveHashes(hash_value):
+    with open('hashes', 'a') as f:
+        f.write(hash_value + ': null\n')
 
 try:
     with open('DB') as f:
@@ -264,7 +264,7 @@ def loopImp():
                         print(e)                        
                         print(result)
             hashes.add(hash_value)
-            saveHashes()
+            saveHashes(hash_value)
 
 def loop():
     try:
