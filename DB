@@ -11,16 +11,10 @@
 - "\u56FD\u9645\u7279\u8D66"
 - "\u5973\u6743"
 - LGBT
-pool:
-- pincongessence
-- WeChatEssence
-- twitter_subscriptions
-- Science_Updates
 -1001414226421:
 - our
 - he
 - of
-- youtu
 -1001197970228:
 - "\u4E66"
 - "\u54C1\u8471"
@@ -30,6 +24,11 @@ pool:
 - Hong Kong
 -353219661:
 - ''
+pool:
+- pincongessence
+- WeChatEssence
+- twitter_subscriptions
+- Science_Updates
 -1001199060777:
 - "\u7F8E\u56FD"
 - America
