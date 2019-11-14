@@ -13,6 +13,7 @@ import threading
 import export_to_telegraph
 from bs4 import BeautifulSoup
 import hashlib
+from telegram_util import isMeaningful, splitCommand, log_on_fail, autoDestroy
 
 START_MESSAGE = ('''
 Subscribe messages from public channels. 
@@ -27,7 +28,7 @@ with open('CREDENTIALS') as f:
     CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
 
 export_to_telegraph.token = CREDENTIALS.get('telegraph')
-debug_group = CREDENTIALS.get('debug_group') or -1001198682178
+telegram_util.debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
 INTERVAL = 3600
 channel_reply = {}
@@ -240,6 +241,7 @@ def keyMatch(chat_id, author, result):
             return True
     return False
 
+@log_on_fail(updater)
 def loopImp():
     global hashes
     global DB
@@ -267,15 +269,7 @@ def loopImp():
             saveHashes(hash_value)
 
 def loop():
-    try:
-        loopImp()
-    except Exception as e:
-        print(e)
-        tb.print_exc()
-        try:
-            updater.bot.send_message(chat_id=debug_group, text=str(e))
-        except:
-            pass
+    loopImp()
     threading.Timer(INTERVAL, loop).start()
 
 threading.Timer(1, loop).start()
