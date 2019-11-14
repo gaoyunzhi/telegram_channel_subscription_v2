@@ -13,7 +13,7 @@ import threading
 import export_to_telegraph
 from bs4 import BeautifulSoup
 import hashlib
-from telegram_util import isMeaningful, splitCommand, log_on_fail, autoDestroy
+from telegram_util import isMeaningful, splitCommand, log_on_fail, autoDestroy, getDisplayUser
 
 START_MESSAGE = ('''
 Subscribe messages from public channels. 
@@ -27,33 +27,21 @@ edit - /keys keywords: give a new set of keywords, in json format
 with open('CREDENTIALS') as f:
     CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
 
+updater = Updater(CREDENTIALS['bot_token'], use_context=True)
 export_to_telegraph.token = CREDENTIALS.get('telegraph')
 telegram_util.debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
 INTERVAL = 3600
-channel_reply = {}
 
-def appendMessageLog(message):
-    with open('message_log.txt', 'a') as f:
-        f.write(message) 
-
-try:
-    with open('hashes') as f:
-        hashes = set(yaml.load(f, Loader=yaml.FullLoader))
-except:
-    hashes = set([])
+with open('hashes') as f:
+    hashes = set(yaml.load(f, Loader=yaml.FullLoader))
 
 def saveHashes(hash_value):
     with open('hashes', 'a') as f:
         f.write(hash_value + ': null\n')
 
-try:
-    with open('DB') as f:
-        DB = yaml.load(f, Loader=yaml.FullLoader)
-except Exception as e:
-    print(e)
-    tb.print_exc()
-    DB = {'pool': []}
+with open('DB') as f:
+    DB = yaml.load(f, Loader=yaml.FullLoader)
 
 def saveDB():
     with open('DB', 'w') as f:
@@ -64,28 +52,11 @@ def addKey(chat_id, key):
     DB[chat_id].append(key)
     saveDB()
 
-def splitCommand(text):
-    pieces = text.split()
-    if len(pieces) < 1:
-        return '', ''
-    command = pieces[0]
-    return command.lower(), text[text.find(command) + len(command):].strip()
-
 def listPool(msg):
     items = ['{}: [{}](t.me/{})'.format(index, content, content) \
         for index, content in enumerate(DB['pool'])]
     msg.reply_text('\n\n'.join(items), quote=False, disable_web_page_preview=True, 
         parse_mode='Markdown')
-
-def getDisplayUser(user):
-    result = ''
-    if user.first_name:
-        result += user.first_name
-    if user.last_name:
-        result += ' ' + user.last_name
-    if user.username:
-        result += ' (' + user.username + ')'
-    return '[' + result + '](tg://user?id=' + str(user.id) + ')'
 
 def add(msg, content):
     if not msg.from_user:
@@ -126,72 +97,43 @@ def remove(msg, content):
         msg.reply_text(str(e), quote=False)
 
 def getKeysText(msg):
-    return 'Subscription Keys: ' + str(DB.get(msg.chat_id))
-
-def tryDelete(msg):
-    try:
-        msg.delete()
-    except:
-        pass
-
-def deleteOutdatedMsg(msg, r):
-    try:
-        threading.Timer(60, lambda: tryDelete(r)).start()
-        msg.forward(debug_group, disable_notification=True)
-        global channel_reply
-        if msg.chat_id > 0:
-            return
-        msg.delete()
-        if channel_reply.get(msg.chat_id):
-           channel_reply[msg.chat_id].delete()
-        channel_reply[msg.chat_id] = r
-    except Exception as e:
-        print(e)
+    return '/keys: ' + str(DB.get(msg.chat_id))
 
 def show(msg):
-    r = msg.reply_text(getKeysText(msg), quote=False)
-    deleteOutdatedMsg(msg, r)
+    autoDestroy(msg.reply_text(getKeysText(msg), quote=False))
 
 def key(msg, content):
     try:
         DB[msg.chat_id] = yaml.load(content, Loader=yaml.FullLoader)
         saveDB()
-        r = msg.reply_text('success ' + getKeysText(msg), quote=False)
-        deleteOutdatedMsg(msg, r)
+        autoDestroy(msg.reply_text('success ' + getKeysText(msg), quote=False))
     except Exception as e:
         msg.reply_text(str(e), quote=False)
 
+@log_on_fail(updater)
 def manage(update, context):
-    try:
-        msg = update.effective_message
-        if not msg:
-            return
-        command, content = splitCommand(msg.text)
-        if ('add' in command) and content:
-            return add(msg, content)
-        if 'list' in command:
-            return listPool(msg)
-        if 'remove' in command:
-            return remove(msg, content)
-        if 'show' in command:
-            return show(msg)
-        if 'key' in command:
-            return key(msg, content)
-    except Exception as e:
-        print(e)
-        tb.print_exc()
-        context.bot.send_message(chat_id=debug_group, text=str(e))
-
+    msg = update.effective_message
+    if not msg:
+        return
+    autoDestroy(msg)
+    command, content = splitCommand(msg.text)
+    if ('add' in command) and content:
+        return add(msg, content)
+    if 'list' in command:
+        return listPool(msg)
+    if 'remove' in command:
+        return remove(msg, content)
+    if 'show' in command:
+        return show(msg)
+    if 'key' in command:
+        return key(msg, content)
 
 def start(update, context):
     if update.message:
         update.message.reply_text(START_MESSAGE, quote=False)
 
-updater = Updater(CREDENTIALS['bot_token'], use_context=True)
-dp = updater.dispatcher
-
-dp.add_handler(MessageHandler(Filters.command, manage))
-dp.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
+updater.dispatcher.add_handler(MessageHandler(Filters.command, manage))
+updater.dispatcher.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
 
 def getSoup(url):
     headers = {'Host':'telete.in',
@@ -206,10 +148,7 @@ def getSoup(url):
         'Accept-Encoding':'gzip, deflate, br',
         'Accept-Language':'en-US,en;q=0.9,zh;q=0.8,zh-CN;q=0.7'}
     r = requests.get(url, headers=headers)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    with open('tmp1.html', 'w') as f:
-        f.write(str(soup))
-    return soup
+    return BeautifulSoup(r.text, 'html.parser')
 
 def getParsedText(text):
     result = ''
@@ -228,7 +167,7 @@ def getParsedText(text):
                 del item['rel']
                 if 'http' in item.text:
                     item.contents[0].replaceWith(telegraph_url)
-        if str(item).startswith('原文链接') and 'telegra' in result:
+        if str(item).startswith('原文') and 'telegra' in result:
             return result
         result += str(item)
     return result
@@ -247,7 +186,6 @@ def loopImp():
     global DB
     for item in DB['pool']:
         soup = getSoup('https://telete.in/s/' + item)
-        time.sleep(5)
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
             if (not text) or (not text.text):
@@ -257,7 +195,6 @@ def loopImp():
                 continue
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
-            appendMessageLog(result + '\n~~~~~~~~~~~\n\n')
             for chat_id in DB:
                 if keyMatch(chat_id, str(author), result):
                     try:
@@ -267,6 +204,7 @@ def loopImp():
                         print(result)
             hashes.add(hash_value)
             saveHashes(hash_value)
+            time.sleep(5)
 
 def loop():
     loopImp()

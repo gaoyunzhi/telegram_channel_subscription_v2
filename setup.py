@@ -31,6 +31,20 @@ def setup(arg = ''):
 	# kill the old running bot if any. If you need two same bot running in one machine, use mannual command instead
 	os.system("ps aux | grep ython | grep subscription_v3 | awk '{print $2}' | xargs kill -9")
 
+	try:
+		with open('DB') as f:
+			pass
+	except:
+		with open('DB', 'w') as f:
+			f.write("{'pool': []}")
+
+	try:
+		with open('hashes') as f:
+			pass
+	except:
+		with open('hashes', 'w') as f:
+			f.write("!!set\n")
+
 	if arg.startswith('debug'):
 		os.system(RUN_COMMAND[6:-2])
 	else:
