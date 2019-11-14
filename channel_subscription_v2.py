@@ -28,7 +28,7 @@ updater = Updater(CREDENTIALS['bot_token'], use_context=True)
 export_to_telegraph.token = CREDENTIALS.get('telegraph')
 telegram_util.debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
-INTERVAL = 1 # 3600
+INTERVAL = 3600
 PAUSED = []
 
 with open('hashes') as f:
