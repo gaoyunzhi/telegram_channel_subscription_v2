@@ -1,19 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
 import yaml
 import time
 from telegram.ext import Updater, MessageHandler, Filters
 import requests
-import traceback as tb
-import json
 import threading
 import export_to_telegraph
 from bs4 import BeautifulSoup
 import hashlib
-from telegram_util import isMeaningful, splitCommand, log_on_fail, autoDestroy, getDisplayUser
+from telegram_util import splitCommand, log_on_fail, autoDestroy, getDisplayUser
 
 START_MESSAGE = ('''
 Subscribe messages from public channels. 
@@ -31,7 +27,7 @@ updater = Updater(CREDENTIALS['bot_token'], use_context=True)
 export_to_telegraph.token = CREDENTIALS.get('telegraph')
 telegram_util.debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
-INTERVAL = 3600
+INTERVAL = 1 # 3600
 
 with open('hashes') as f:
     hashes = set(yaml.load(f, Loader=yaml.FullLoader))
