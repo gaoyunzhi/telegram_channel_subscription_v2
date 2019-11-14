@@ -9,6 +9,7 @@ import threading
 import export_to_telegraph
 from bs4 import BeautifulSoup
 import hashlib
+import telegram_util
 from telegram_util import splitCommand, log_on_fail, autoDestroy, getDisplayUser
 
 START_MESSAGE = ('''
@@ -130,7 +131,7 @@ def manage(update, context):
         return key(msg, content)
     if 'pause' in command:
         global PAUSED
-        PAUSED.add(msg.chat_id)
+        PAUSED.append(msg.chat_id)
         threading.Timer(4 * 60 * 60, lambda: unpause(msg.chat_id)).start()
         autoDestroy(msg.reply_text('success', quote=False))
         return
