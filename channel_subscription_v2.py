@@ -28,6 +28,7 @@ export_to_telegraph.token = CREDENTIALS.get('telegraph')
 telegram_util.debug_group = CREDENTIALS.get('debug_group') or -1001198682178
 
 INTERVAL = 1 # 3600
+PAUSED = []
 
 with open('hashes') as f:
     hashes = set(yaml.load(f, Loader=yaml.FullLoader))
@@ -106,6 +107,10 @@ def key(msg, content):
     except Exception as e:
         msg.reply_text(str(e), quote=False)
 
+def unpause(chat_id):
+    global PAUSED
+    PAUSED.remove(chat_id)
+
 @log_on_fail(updater)
 def manage(update, context):
     msg = update.effective_message
@@ -123,6 +128,12 @@ def manage(update, context):
         return show(msg)
     if 'key' in command:
         return key(msg, content)
+    if 'pause' in command:
+        global PAUSED
+        PAUSED.add(msg.chat_id)
+        threading.Timer(4 * 60 * 60, lambda: unpause(msg.chat_id)).start()
+        autoDestroy(msg.reply_text('success', quote=False))
+        return
 
 def start(update, context):
     if update.message:
@@ -192,6 +203,8 @@ def loopImp():
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
             for chat_id in DB:
+                if chat_id in PAUSED:
+                    continue
                 if keyMatch(chat_id, str(author), result):
                     try:
                         updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
