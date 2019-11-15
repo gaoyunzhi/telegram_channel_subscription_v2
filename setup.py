@@ -3,9 +3,10 @@ import sys
 import json
 
 REQUIRED_KEYS = set(['bot_token'])
+MAIN_FILE = 'channel_subscription_v2'
 
 def setup(arg = ''):
-	RUN_COMMAND = 'nohup python3 channel_subscription_v2.py &'
+	RUN_COMMAND = 'nohup python3 '+ MAIN_FILE + '.py &'
 
 	with open('CREDENTIALS') as f:
 		CREDENTIALS = json.load(f)
@@ -29,7 +30,7 @@ def setup(arg = ''):
 		os.system('sudo pip3 install python-telegram-bot --upgrade') # need to use some experiement feature, e.g. message filtering
 			
 	# kill the old running bot if any. If you need two same bot running in one machine, use mannual command instead
-	os.system("ps aux | grep ython | grep subscription_v3 | awk '{print $2}' | xargs kill -9")
+	os.system("ps aux | grep ython | grep " + MAIN_FILE + " | awk '{print $2}' | xargs kill -9")
 
 	try:
 		with open('DB') as f:
