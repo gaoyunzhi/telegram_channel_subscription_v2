@@ -1,5 +1,5 @@
 python-telegram-bot
-export_to_telegraph>=0.0.8
+export_to_telegraph>=0.0.14
 bs4
 pyyaml
 telegram_util>=0.0.6
