@@ -209,12 +209,12 @@ def loopImp():
                 if keyMatch(chat_id, str(author), result):
                     try:
                         updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                        time.sleep(1)
                     except Exception as e:
                         print(e)                        
                         print(result)
             hashes.add(hash_value)
             saveHashes(hash_value)
-            time.sleep(5)
 
 def loop():
     loopImp()
