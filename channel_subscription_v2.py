@@ -188,6 +188,9 @@ def keyMatch(chat_id, author, result):
             return True
     return False
 
+def intesect(l1, l2):
+    return set(l1).intesect(l2)
+
 @log_on_fail(updater)
 def loopImp():
     global hashes
@@ -203,16 +206,16 @@ def loopImp():
                 continue
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
-            for chat_id in DB:
-                if chat_id in PAUSED:
-                    continue
-                if keyMatch(chat_id, str(author), result):
-                    try:
-                        updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
-                        time.sleep(1)
-                    except Exception as e:
-                        print(e)                        
-                        print(result)
+            matches = [chat_id for chat_id in DB if keyMatch(chat_id, str(author), result)]
+            if intesect(matches, PAUSED):
+                continue
+            for chat_id in matches
+                try:
+                    updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                    time.sleep(1)
+                except Exception as e:
+                    print(e)                        
+                    print(result)
             hashes.add(hash_value)
             saveHashes(hash_value)
 
