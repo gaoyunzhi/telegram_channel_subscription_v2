@@ -202,14 +202,10 @@ def loopImp():
             if (not text) or (not text.text):
                 continue
             hash_value = hashlib.sha224(str(text.text).encode('utf-8')).hexdigest()
-            # if hash_value in hashes:
-            #     continue
+            if hash_value in hashes:
+                continue
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
-            print(result[:20])
-            if not '美国政治' in result:
-                continue
-            print('here')
             matches = [chat_id for chat_id in DB if keyMatch(chat_id, str(author), result)]
             if intesect(matches, PAUSED):
                 continue
