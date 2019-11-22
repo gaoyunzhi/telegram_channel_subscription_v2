@@ -211,7 +211,7 @@ def loopImp():
             matches = [chat_id for chat_id in DB if keyMatch(chat_id, str(author), result)]
             if intesect(matches, PAUSED):
                 continue
-            for chat_id in matches
+            for chat_id in matches:
                 try:
                     updater.bot.send_message(chat_id=-1001198682178, text=result, parse_mode='HTML')
                     time.sleep(1)
