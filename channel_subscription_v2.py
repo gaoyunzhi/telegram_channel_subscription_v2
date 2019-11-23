@@ -211,7 +211,7 @@ def loopImp():
                 continue
             for chat_id in matches:
                 try:
-                    updater.bot.send_message(chat_id=-1001198682178, text=result, parse_mode='HTML')
+                    updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
                     time.sleep(1)
                 except Exception as e:
                     print(e)                        
