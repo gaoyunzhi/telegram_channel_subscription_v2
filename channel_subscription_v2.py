@@ -24,9 +24,9 @@ edit - /keys keywords: give a new set of keywords, in json format
 with open('CREDENTIALS') as f:
     CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
 
-updater = Updater(CREDENTIALS['bot_token'], use_context=True)
+tele = Updater(CREDENTIALS['bot_token'], use_context=True)
 export_to_telegraph.token = CREDENTIALS.get('telegraph')
-telegram_util.debug_group = CREDENTIALS.get('debug_group') or -1001198682178
+debug_group = tele.bot.get_chat(-1001198682178)
 
 INTERVAL = 3600
 PAUSED = []
@@ -60,9 +60,9 @@ def add(msg, content):
     if not msg.from_user:
         return
     if msg.from_user.id not in CREDENTIALS.get('admins', []):
-        updater.bot.send_message(chat_id=debug_group, text='suggestion: ' + content)
+        tele.bot.send_message(chat_id=debug_group, text='suggestion: ' + content)
         msg.reply_text('Only admin can add, your suggestion is recorded.', quote=False)
-        updater.bot.send_message(
+        tele.bot.send_message(
             chat_id=debug_group, 
             text ='suggestion from ' + getDisplayUser(msg.from_user),
             parse_mode='Markdown',
@@ -112,7 +112,7 @@ def unpause(chat_id):
     global PAUSED
     PAUSED.remove(chat_id)
 
-@log_on_fail(updater)
+@log_on_fail(debug_group)
 def manage(update, context):
     msg = update.effective_message
     if not msg:
@@ -140,8 +140,8 @@ def start(update, context):
     if update.message:
         update.message.reply_text(START_MESSAGE, quote=False)
 
-updater.dispatcher.add_handler(MessageHandler(Filters.command, manage))
-updater.dispatcher.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
+tele.dispatcher.add_handler(MessageHandler(Filters.command, manage))
+tele.dispatcher.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
 
 def getSoup(url):
     headers = {'Host':'telete.in',
@@ -188,10 +188,10 @@ def keyMatch(chat_id, author, result):
             return True
     return False
 
-def intesect(l1, l2):
-    return set(l1).intesect(l2)
+def intersect(l1, l2):
+    return set(l1).intersection(l2)
 
-@log_on_fail(updater)
+@log_on_fail(debug_group)
 def loopImp():
     global hashes
     global DB
@@ -207,11 +207,11 @@ def loopImp():
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
             matches = [chat_id for chat_id in DB if keyMatch(chat_id, str(author), result)]
-            if intesect(matches, PAUSED):
+            if intersect(matches, PAUSED):
                 continue
             for chat_id in matches:
                 try:
-                    updater.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
+                    tele.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
                     time.sleep(1)
                 except Exception as e:
                     print(e)                        
@@ -225,5 +225,5 @@ def loop():
 
 threading.Timer(1, loop).start()
 
-updater.start_polling()
-updater.idle()
+tele.start_polling()
+tele.idle()
