@@ -1,14 +1,11 @@
 -1001368792927:
 - "\u53F0\u6E7E"
 - "\u53F0\u7063"
+985785329: BBC
 -1001341438972:
 - "\u4EBA\u7C7B"
 - uman
 - ealth
-pool:
-- twitter_subscriptions
-- pincongessence
-- WeChatEssence
 888014086: null
 -1001409716127:
 - "\u5973\u6027"
@@ -16,6 +13,10 @@ pool:
 - "\u56FD\u9645\u7279\u8D66"
 - "\u5973\u6743"
 - LGBT
+pool:
+- twitter_subscriptions
+- pincongessence
+- WeChatEssence
 -1001414226421: []
 -1001197970228:
 - "\u4E66"
@@ -35,4 +36,8 @@ pool:
 - nCov
 - "\u75AB"
 - "\u80BA\u708E"
+- "\u65B0\u51A0"
+-1001197270641:
+- "\u674E\u6587\u4EAE"
+- "\u5439\u54E8\u8005"
 614636092: null
