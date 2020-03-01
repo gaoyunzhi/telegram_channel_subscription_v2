@@ -214,6 +214,7 @@ def loopImp():
                     tele.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
                     time.sleep(1)
                 except Exception as e:
+                    print(chat_id)
                     print(e)                        
                     print(result)
             hashes.add(hash_value)
