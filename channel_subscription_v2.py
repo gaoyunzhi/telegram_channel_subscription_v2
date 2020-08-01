@@ -11,34 +11,18 @@ from bs4 import BeautifulSoup
 import hashlib
 import telegram_util
 from telegram_util import splitCommand, log_on_fail, autoDestroy, getDisplayUser
+import plain_db
 
-START_MESSAGE = ('''
-Subscribe messages from public channels. 
+with open('token') as f:
+    token = f.read().strip()
+tele = Updater(token, use_context=True)
+debug_group = tele.bot.get_chat(420074357)
 
-add - /add channel_link add channel to subscription pool. Channel must have public name. Automatically subscribe this channel if messge is send in a group or channel.
-list - /list: list all channels.
-keys - /show_keys: show subscription keywords
-edit - /keys keywords: give a new set of keywords, in json format
-''')
-
-with open('CREDENTIALS') as f:
-    CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
-
-tele = Updater(CREDENTIALS['bot_token'], use_context=True)
-export_to_telegraph.token = CREDENTIALS.get('telegraph')
-debug_group = tele.bot.get_chat(-1001198682178)
+existing = plain_db.loadKeyOnlyDB('existing')
+with open('db') as f:
+    db = yaml.load(f, Loader=yaml.FullLoader)
 
 INTERVAL = 3600
-
-with open('hashes') as f:
-    hashes = set(yaml.load(f, Loader=yaml.FullLoader))
-
-def saveHashes(hash_value):
-    with open('hashes', 'a') as f:
-        f.write(hash_value + ': null\n')
-
-with open('DB') as f:
-    DB = yaml.load(f, Loader=yaml.FullLoader)
 
 def saveDB():
     with open('DB', 'w') as f:
@@ -50,9 +34,9 @@ def addKey(chat_id, key):
     saveDB()
 
 def listPool(msg):
-    items = ['{}: [{}](t.me/{})'.format(index, content, content) \
+    items = ['%d: [%s](t.me/%s)' % (index, content, content)
         for index, content in enumerate(DB['pool'])]
-    msg.reply_text('\n\n'.join(items), quote=False, disable_web_page_preview=True, 
+    msg.reply_text('\n'.join(items), disable_web_page_preview=True, 
         parse_mode='Markdown')
 
 def getKeysText(msg):
@@ -83,12 +67,13 @@ def manage(update, context):
     if 'key' in command:
         return key(msg, content)
 
+with open('help.md') as f:
+    help_message = f.read()
+
 def start(update, context):
     if update.message:
-        update.message.reply_text(START_MESSAGE, quote=False)
+        update.message.reply_text(help_message)
 
-tele.dispatcher.add_handler(MessageHandler(Filters.command, manage))
-tele.dispatcher.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
 
 def getSoup(url):
     headers = {'Host':'telete.in',
@@ -167,9 +152,11 @@ def loopImp():
 
 def loop():
     loopImp()
-    threading.Timer(INTERVAL, loop).start()
+    threading.Timer(3600, loop).start()
 
-threading.Timer(1, loop).start()
-
-tele.start_polling()
-tele.idle()
+if __name__ == '__main__':
+    threading.Timer(1, loop).start()
+    tele.dispatcher.add_handler(MessageHandler(Filters.command, manage))
+    tele.dispatcher.add_handler(MessageHandler(Filters.private & (~Filters.command), start))
+    tele.start_polling()
+    tele.idle()
