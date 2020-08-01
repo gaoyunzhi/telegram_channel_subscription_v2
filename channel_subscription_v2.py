@@ -6,7 +6,7 @@ import time
 from telegram.ext import Updater, MessageHandler, Filters
 import threading
 import export_to_telegraph
-from telegram_util import splitCommand, log_on_fail, autoDestroy
+from telegram_util import splitCommand, log_on_fail, autoDestroy, matchKey
 import plain_db
 import webgram
 
@@ -79,8 +79,7 @@ def getMessage(text, toTelegraph=True):
             if item.text:
                 result += '<i>' + item.text + '</i>'
             continue
-        if 'telegra' in result and (str(item).startswith('原文') or 
-            str(item.text).startswith('原文')):
+        if 'telegra' in result and str(item).startswith('原文'):
             return result
         if item.name == 'a':
             if 'rel' in item:
