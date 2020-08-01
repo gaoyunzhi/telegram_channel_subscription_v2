@@ -84,7 +84,7 @@ def getMessage(text, toTelegraph=True):
         if item.name == 'a':
             if 'rel' in item:
                 del item['rel']
-            if toTelegraph:
+            if toTelegraph and 'telegra' not in result:
                 telegraph_url = export_to_telegraph.export(item['href'])
                 if telegraph_url:
                     item['href'] = telegraph_url
