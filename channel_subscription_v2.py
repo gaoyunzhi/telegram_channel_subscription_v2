@@ -112,7 +112,11 @@ def loopImp():
                 continue
             message = getMessage(post.text, channel != 'twitter_subscriptions')
             for chat_id in matches:
-                tele.bot.send_message(chat_id, message, parse_mode='HTML')
+                try:
+                    tele.bot.send_message(chat_id, message, parse_mode='HTML')
+                except Exception as e:
+                    debug_group.send_message(str(chat_id) + ' ' + str(e))
+                    debug_group.send_message(message, parse_mode='HTML')
                 time.sleep(5)
 
 def loop():
