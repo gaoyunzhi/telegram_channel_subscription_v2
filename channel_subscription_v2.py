@@ -9,8 +9,7 @@ import threading
 import export_to_telegraph
 from bs4 import BeautifulSoup
 import hashlib
-import telegram_util
-from telegram_util import splitCommand, log_on_fail, autoDestroy, getDisplayUser
+from telegram_util import splitCommand, log_on_fail, autoDestroyss
 import plain_db
 
 with open('credential') as f:
@@ -23,14 +22,6 @@ existing = plain_db.loadKeyOnlyDB('existing')
 with open('db') as f:
     db = yaml.load(f, Loader=yaml.FullLoader)
 def saveDB():
-    for key in list(db.keys()):
-        if isinstance(db[key],list):
-            continue
-        if not db[key]:
-            del db[key]
-            continue
-        if isinstance(db[key], str):
-            db[key] = [db[key]]
     with open('db', 'w') as f:
         f.write(yaml.dump(db, sort_keys=True, indent=2, allow_unicode=True))
 
@@ -48,8 +39,8 @@ def getKeysText(msg):
 def show(msg):
     autoDestroy(msg.reply_text(getKeysText(msg)))
 
-def key(msg, content):
-    db[msg.chat_id] = yaml.load(content, Loader=yaml.FullLoader)
+def setKey(msg, content):
+    db[msg.chat_id] = [item for item in content.split() if item]
     saveDB()
     autoDestroy(msg.reply_text('success ' + getKeysText(msg)))
 
@@ -65,7 +56,7 @@ def manage(update, context):
     if 'show' in command:
         return show(msg)
     if 'key' in command:
-        return key(msg, content)
+        return setKey(msg, content)
 
 with open('help.md') as f:
     help_message = f.read()
@@ -124,10 +115,8 @@ def intersect(l1, l2):
 
 @log_on_fail(debug_group)
 def loopImp():
-    global hashes
-    global db
     for item in db['pool']:
-        soup = getSoup('https://telete.in/s/' + item)
+        post = webgram.getPosts('')
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
             if (not text) or (not text.text):
