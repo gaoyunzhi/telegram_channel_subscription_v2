@@ -19,7 +19,7 @@ tele = Updater(credential['token'], use_context=True)
 export_to_telegraph.token = credential['telegraph_token']
 debug_group = tele.bot.get_chat(420074357)
 
-existing = plain_db.loadKeyOnlydb('existing')
+existing = plain_db.loadKeyOnlyDB('existing')
 with open('db') as f:
     db = yaml.load(f, Loader=yaml.FullLoader)
 def saveDB():
