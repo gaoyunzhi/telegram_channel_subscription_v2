@@ -6,7 +6,7 @@ import time
 from telegram.ext import Updater, MessageHandler, Filters
 import threading
 import export_to_telegraph
-from telegram_util import splitCommand, log_on_fail, autoDestroyss
+from telegram_util import splitCommand, log_on_fail, autoDestroys
 import plain_db
 import webgram
 
@@ -114,6 +114,7 @@ def loopImp():
             message = getMessage(post.text, channel != 'twitter_subscriptions')
             for chat_id in matches:
                 tele.bot.send_message(chat_id, message, parse_mode='HTML')
+                time.sleep(5)
 
 def loop():
     loopImp()
