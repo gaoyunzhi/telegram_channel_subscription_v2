@@ -13,45 +13,45 @@ import telegram_util
 from telegram_util import splitCommand, log_on_fail, autoDestroy, getDisplayUser
 import plain_db
 
-with open('token') as f:
-    token = f.read().strip()
-tele = Updater(token, use_context=True)
+with open('credential') as f:
+    credential = yaml.load(f, Loader=yaml.FullLoader)
+tele = Updater(credential['token'], use_context=True)
+export_to_telegraph.token = credential['telegraph_token']
 debug_group = tele.bot.get_chat(420074357)
 
-existing = plain_db.loadKeyOnlyDB('existing')
+existing = plain_db.loadKeyOnlydb('existing')
 with open('db') as f:
     db = yaml.load(f, Loader=yaml.FullLoader)
+def saveDB():
+    for key in list(db.keys()):
+        if isinstance(db[key],list):
+            continue
+        if not db[key]:
+            del db[key]
+            continue
+        if isinstance(db[key], str):
+            db[key] = [db[key]]
+    with open('db', 'w') as f:
+        f.write(yaml.dump(db, sort_keys=True, indent=2, allow_unicode=True))
 
 INTERVAL = 3600
 
-def saveDB():
-    with open('DB', 'w') as f:
-        f.write(yaml.dump(DB, sort_keys=True, indent=2))
-
-def addKey(chat_id, key):
-    DB[chat_id] = DB.get(chat_id, [])
-    DB[chat_id].append(key)
-    saveDB()
-
 def listPool(msg):
     items = ['%d: [%s](t.me/%s)' % (index, content, content)
-        for index, content in enumerate(DB['pool'])]
+        for index, content in enumerate(db['pool'])]
     msg.reply_text('\n'.join(items), disable_web_page_preview=True, 
         parse_mode='Markdown')
 
 def getKeysText(msg):
-    return '/keys: ' + str(DB.get(msg.chat_id))
+    return '/keys: ' + ' '.join(db.get(msg.chat_id, []))
 
 def show(msg):
-    autoDestroy(msg.reply_text(getKeysText(msg), quote=False))
+    autoDestroy(msg.reply_text(getKeysText(msg)))
 
 def key(msg, content):
-    try:
-        DB[msg.chat_id] = yaml.load(content, Loader=yaml.FullLoader)
-        saveDB()
-        autoDestroy(msg.reply_text('success ' + getKeysText(msg), quote=False))
-    except Exception as e:
-        msg.reply_text(str(e), quote=False)
+    db[msg.chat_id] = yaml.load(content, Loader=yaml.FullLoader)
+    saveDB()
+    autoDestroy(msg.reply_text('success ' + getKeysText(msg)))
 
 @log_on_fail(debug_group)
 def manage(update, context):
@@ -73,7 +73,6 @@ with open('help.md') as f:
 def start(update, context):
     if update.message:
         update.message.reply_text(help_message)
-
 
 def getSoup(url):
     headers = {'Host':'telete.in',
@@ -113,9 +112,9 @@ def getParsedText(text):
     return result
 
 def keyMatch(chat_id, author, result):
-    if (not isinstance(chat_id, int)) or (not DB[chat_id]):
+    if (not isinstance(chat_id, int)) or (not db[chat_id]):
         return False
-    for key in DB[chat_id]:
+    for key in db[chat_id]:
         if key in str(author) or key in str(result):
             return True
     return False
@@ -126,8 +125,8 @@ def intersect(l1, l2):
 @log_on_fail(debug_group)
 def loopImp():
     global hashes
-    global DB
-    for item in DB['pool']:
+    global db
+    for item in db['pool']:
         soup = getSoup('https://telete.in/s/' + item)
         for msg in soup.find_all('div', class_='tgme_widget_message_bubble'):
             text = msg.find('div', class_='tgme_widget_message_text')
@@ -138,7 +137,7 @@ def loopImp():
                 continue
             author = msg.find('div', class_='tgme_widget_message_author')
             result = getParsedText(text)
-            matches = [chat_id for chat_id in DB if keyMatch(chat_id, str(author), result)]
+            matches = [chat_id for chat_id in db if keyMatch(chat_id, str(author), result)]
             for chat_id in matches:
                 try:
                     tele.bot.send_message(chat_id=chat_id, text=result, parse_mode='HTML')
