@@ -1,3 +1,5 @@
+Note: This readme might be outdated. Use with caution. If there is any question, send us a Github issue.
+
 # telegram_channel_subscription_v2_bot
 
 Subscribe messages from public channels. 
