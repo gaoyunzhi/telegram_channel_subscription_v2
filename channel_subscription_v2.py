@@ -17,7 +17,7 @@ export_to_telegraph.token = credential['telegraph_token']
 debug_group = tele.bot.get_chat(420074357)
 
 existing = plain_db.loadKeyOnlyDB('existing')
-with open('db') as f:
+with open('subscription') as f:
     db = yaml.load(f, Loader=yaml.FullLoader)
 def saveDB():
     for chat_id in list(db.keys()):
