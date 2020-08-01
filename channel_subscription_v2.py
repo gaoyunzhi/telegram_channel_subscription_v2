@@ -55,33 +55,6 @@ def listPool(msg):
     msg.reply_text('\n\n'.join(items), quote=False, disable_web_page_preview=True, 
         parse_mode='Markdown')
 
-def add(msg, content):
-    if not msg.from_user:
-        return
-    if msg.from_user.id not in CREDENTIALS.get('admins', []):
-        tele.bot.send_message(chat_id=debug_group, text='suggestion: ' + content)
-        msg.reply_text('Only admin can add, your suggestion is recorded.', quote=False)
-        tele.bot.send_message(
-            chat_id=debug_group, 
-            text ='suggestion from ' + getDisplayUser(msg.from_user),
-            parse_mode='Markdown',
-            disable_web_page_preview=True) 
-        return
-    pieces = [x.strip() for x in content.split('/') if x.strip()]
-    if len(pieces) == 0:
-        return msg.reply_text('FAIL. can not find channel: ' + content, quote=False)
-    name = pieces[-1]
-    if name.startswith('@'):
-        name = name[1:]
-    if not name:
-        return msg.reply_text('FAIL. can not find channel: ' + content, quote=False)
-    if name in DB['pool']:
-        return msg.reply_text('channel already in pool: ' + content, quote=False)
-    DB['pool'].append(name)
-    if msg.chat_id < 0:
-        addKey(msg.chat_id, name) 
-    msg.reply_text('success', quote=False)
-
 def getKeysText(msg):
     return '/keys: ' + str(DB.get(msg.chat_id))
 
