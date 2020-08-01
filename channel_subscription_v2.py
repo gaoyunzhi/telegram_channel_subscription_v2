@@ -6,7 +6,7 @@ import time
 from telegram.ext import Updater, MessageHandler, Filters
 import threading
 import export_to_telegraph
-from telegram_util import splitCommand, log_on_fail, autoDestroys
+from telegram_util import splitCommand, log_on_fail, autoDestroy
 import plain_db
 import webgram
 
