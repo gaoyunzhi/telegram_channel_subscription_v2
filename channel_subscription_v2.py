@@ -28,7 +28,7 @@ def saveDB():
             r.delete()
         except:
             del db[chat_id]
-    with open('db', 'w') as f:
+    with open('subscription', 'w') as f:
         f.write(yaml.dump(db, sort_keys=True, indent=2, allow_unicode=True))
 
 def listPool(msg):
