@@ -6,10 +6,6 @@
 - 平等
 - 国际特赦
 - LGBT
--1001280089460:
-- 旧金山
-- 湾区
-- 加州
 985785329:
 - BBC
 -1001341438972:
@@ -23,16 +19,20 @@
 - 书
 632615627:
 - movies
-pool:
-- twitter_subscriptions
-- pincongessence
-- WeChatEssence
+-1001280089460:
+- 旧金山
+- 湾区
+- 加州
+-1001455932274:
+- 贺锦丽
+- biden
+- Kamala
+- Harris
+- 民主党
+- 哈里斯
 -1001197270641:
 - 李文亮
 - 吹哨者
--1001198006031:
-- 香港
-- Hong Kong
 -1001370746032:
 - US
 - America
@@ -45,6 +45,9 @@ pool:
 - Harris
 - 民主党
 - 哈里斯
+-1001198006031:
+- 香港
+- Hong Kong
 -1001498030120:
 - 武汉
 - nCov
@@ -52,3 +55,7 @@ pool:
 - 肺炎
 - 新冠
 - covid
+pool:
+- twitter_subscriptions
+- pincongessence
+- WeChatEssence
