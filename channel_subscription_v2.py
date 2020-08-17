@@ -20,14 +20,6 @@ existing = plain_db.loadKeyOnlyDB('existing')
 with open('subscription') as f:
     db = yaml.load(f, Loader=yaml.FullLoader)
 def saveDB():
-    for chat_id in list(db.keys()):
-        if not isinstance(chat_id, int):
-            continue
-        try:
-            r = tele.bot.send_message(chat_id, 'test')
-            r.delete()
-        except:
-            del db[chat_id]
     with open('subscription', 'w') as f:
         f.write(yaml.dump(db, sort_keys=True, indent=2, allow_unicode=True))
 
