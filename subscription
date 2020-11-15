@@ -7,17 +7,18 @@
 - 人类
 - uman
 - ealth
--1001368792927:
-- 台湾
-- 台灣
--1001197970228:
-- 书
-632615627:
-- movies
+-1001409716127:
+- 平等
+- 国际特赦
+- LGBT
 -1001280089460:
 - 旧金山
 - 湾区
 - 加州
+632615627:
+- movies
+-1001197970228:
+- 书
 -1001455932274:
 - 贺锦丽
 - biden
@@ -47,16 +48,12 @@
 - 肺炎
 - 新冠
 - covid
--1001409716127:
-- 平等
-- 国际特赦
-- LGBT
-pool:
-- twitter_subscriptions
-- pincongessence
-- WeChatEssence
+-1001368792927:
+- 台湾
+- 台灣
 985785329:
 - BBC
+1019392879: []
 1314264240:
 - apple
 -1001198006031:
@@ -68,3 +65,7 @@ pool:
 - 人类
 - 环境
 - 环保
+pool:
+- twitter_subscriptions
+- pincongessence
+- WeChatEssence
