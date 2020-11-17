@@ -96,6 +96,8 @@ def getMatches(index):
 def loopImp():
     for channel in db['pool']:
         for post in webgram.getPosts(channel)[1:]:
+            if not post.text:
+                continue
             maintext = post.getMaintext()
             if not existing.add(maintext):
                 continue
