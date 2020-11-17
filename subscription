@@ -7,18 +7,23 @@
 - 人类
 - uman
 - ealth
+pool:
+- twitter_subscriptions
+- pincongessence
+- WeChatEssence
 -1001409716127:
 - 平等
 - 国际特赦
 - LGBT
+-1001197970228:
+- 书
+330764362: []
+632615627:
+- movies
 -1001280089460:
 - 旧金山
 - 湾区
 - 加州
-632615627:
-- movies
--1001197970228:
-- 书
 -1001455932274:
 - 贺锦丽
 - biden
@@ -65,7 +70,3 @@
 - 人类
 - 环境
 - 环保
-pool:
-- twitter_subscriptions
-- pincongessence
-- WeChatEssence
